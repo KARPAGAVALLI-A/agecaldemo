@@ -1,0 +1,53 @@
+.dockerignore
+  
+node_modules
+dist
+.git
+.gitignore
+README.md
+
+  
+Dockerfile
+
+  
+  FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+  pipeline script
+
+  pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/KARPAGAVALLI-A/agecaldemo.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'npm install'
+            }
+        }
+
+        stage('Build React App') {
+            steps {
+                bat 'npm run build'
+            }
+        }
+    }
+}
+  
+
+  
